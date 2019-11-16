@@ -12,7 +12,6 @@ pub struct Chapter {
 	pub lang: Lang,
 	pub groups: Vec<u16>,
 	pub hash: Option<String>,
-	pub comments: Option<u8>,
 	pub pages: Option<Vec<String>>,
 	pub long_strip: Option<bool>,
 }
@@ -31,7 +30,6 @@ impl Chapter {
 			groups: vec![],
 
 			hash: Some(String::new()),
-			comments: Some(0),
 			pages: Some(vec![]),
 			long_strip: Some(false)
 		}
@@ -56,21 +54,48 @@ impl Chapter {
 
 			pages: None,
 			hash: None,
-			comments: None,
 			long_strip: None
 		}
 	}
 
 	// Retrive data from the chapter api response
 	pub fn from (id: u32) -> Result<Chapter, reqwest::Error> {
-		
 		let resp = reqwest::get(format!("{}{}{}", BASE_URI, API_CHAPTER_URI, id).as_str())?.text()?;
 		let json: Value = serde_json::from_str(resp.as_str()).expect("Failed to read api respone");
 
 		let mut chapter = Self::from_shallow(id, &json);
+		let mut temp: Vec<String> = Vec::new();
+		for page in json["page_array"].as_array().expect("unable to unwrap `page_array` as Vec").iter() {
+			temp.push(Self::remove_quotemark(page.to_string()));
+		}
 
-		Ok(Self::debug_empty(0))
+		chapter.long_strip = Some(json["long_strip"].as_u64().expect("unable to unwrap `long_strip` as u64") != 0);
+		chapter.hash = Some(Self::remove_quotemark(json["hash"].to_string()));
+		chapter.pages = Some(temp);
+
+		Ok(chapter)
 	}
 
+	pub fn fill_chapter (chapter: &mut Chapter) -> Result<(), reqwest::Error> {
+		let resp = reqwest::get(format!("{}{}{}", BASE_URI, API_CHAPTER_URI, chapter.id).as_str())?.text()?;
+		let json: Value = serde_json::from_str(resp.as_str()).expect("Failed to read api respone");
+
+		let mut temp: Vec<String> = Vec::new();
+		for page in json["page_array"].as_array().expect("unable to unwrap `page_array` as Vec").iter() {
+			temp.push(Self::remove_quotemark(page.to_string()));
+		}
+
+		chapter.long_strip = Some(json["long_strip"].as_u64().expect("unable to unwrap `long_strip` as u64") != 0);
+		chapter.hash = Some(Self::remove_quotemark(json["hash"].to_string()));
+		chapter.pages = Some(temp);
+
+		Ok(())
+	}
+
+	pub fn remove_quotemark (mut str: String) -> String {
+		str.remove(0);
+		str.pop();
+		str
+	}
 
 }

@@ -1,5 +1,5 @@
 [package]
-name = "manga-scrapper"
+name = "mangadex-api-rs"
 version = "0.1.0"
 authors = ["milo <milow@mail.com>"]
 edition = "2018"

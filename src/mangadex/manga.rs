@@ -70,7 +70,9 @@ impl Manga {
 
 	// Fill in chapters with page data
 	pub fn fill_chapters (&mut self) {
-
+		for chap in self.chapters.iter_mut() {
+			Chapter::fill_chapter(chap).expect("error filling chapters");
+		}
 	}
 
 }
