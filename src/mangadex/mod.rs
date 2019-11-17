@@ -1,9 +1,21 @@
-pub mod chapter;
+// Public modules
 pub mod manga;
+pub mod chapter;
+pub mod search;
+pub mod user;
+pub mod error;
+
+// Private modules
 mod enums;
 
-const BASE_URI: &str = "https://mangadex.org/";
-const API_MANGA_URI: &str = "api/manga/";
-const API_CHAPTER_URI: &str = "api/chapter/";
+// Constants for server URL's
+const HTTPS_URI: &str = "https://";
+const BASE_URL: &str = "mangadex.org/";
 
-const BASE_URI_DATA_S4: &str = "https://s4.mangadex.org/data/";
+const API_MANGA_URL: &str = "api/manga/";
+const API_CHAPTER_URL: &str = "api/chapter/";
+
+// Trims the first and last character of a string
+pub fn trim_first_last (text: & str) -> & str {
+	&text[1..text.len()]
+}

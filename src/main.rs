@@ -2,31 +2,18 @@
 #![allow(unused_mut)]
 #![allow(unused_variables)]
 
-extern crate reqwest;
-use std::fs;
-use std::fs::File;
-use std::io::prelude::*;
-const BASE_URI_DATA_S4: &str = "https://s4.mangadex.org/data/";
+use std::env;
+use std::process;
 
 mod mangadex;
 
-fn main() -> std::io::Result<()> {
-	let mut onepunch = mangadex::manga::Manga::new(27785).unwrap();
-	onepunch.fill_chapters();
-	fs::create_dir("./skater")?;
-
-	for chapter in onepunch.chapters.iter() {
-		println!("{}", chapter.title);
-		let chapter_title = format!("./skater/{}_{}-{}", chapter.title, chapter.volume, chapter.chapter);
-		fs::create_dir(&chapter_title)?;
-		for page in chapter.pages.as_ref().unwrap().iter() {
-			println!("\t{}", page);
-			let mut image_buf = reqwest::get(format!("{}{}/{}", BASE_URI_DATA_S4, chapter.hash.as_ref().unwrap(), page).as_str()).unwrap();
-			let mut file = File::create(format!("{}/{}", chapter_title, page))?;
-			let mut buf: Vec<u8> = vec![];
-			image_buf.copy_to(&mut buf).unwrap();
-			file.write_all(&buf)?;
-		}
+fn main () {
+	let args: Vec<_> = env::args().collect();
+	if args.len() != 2 {
+		eprintln!("Usage: mangadex_api <manga id>");
+		process::exit(1);
 	}
-	Ok(())
+	let client: reqwest::Client = reqwest::ClientBuilder::new().build().unwrap();
+	let mymanga = mangadex::manga::Manga::from(&client, args[1].parse::<u32>().expect("Please use a proper value")).unwrap();
+	println!("{}", mymanga); 
 }
