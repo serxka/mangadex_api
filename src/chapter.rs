@@ -1,7 +1,7 @@
-use super::manga::ChapterObject;
-use super::enums::{Lang, Server};
-use super::{HTTPS_URI, BASE_URL, API_CHAPTER_URL};
-use super::error::Error;
+use crate::manga::ChapterObject;
+use crate::enums::{Lang, Server};
+use crate::{HTTPS_URI, BASE_URL, API_CHAPTER_URL};
+use crate::error::Error;
 
 use std::path::PathBuf;
 use std::fmt;
@@ -18,6 +18,7 @@ pub struct Chapter {
 	pub lang: Lang,
 	pub long_strip: bool,
 
+	filled: bool,
 	hash: String,
 	server: Server,
 	pages: Vec<String>,
@@ -25,6 +26,7 @@ pub struct Chapter {
 
 impl Chapter {
 	pub fn new (id: u32, json: ChapterObject) -> Result<Chapter, Error> {
+		//println!("{}", json.lang_code);
 		Ok(Chapter {
 			id,
 			timestamp: json.timestamp,
@@ -32,6 +34,8 @@ impl Chapter {
 			volume: json.volume.parse::<u8>().unwrap_or(0),
 			chapter: json.chapter.parse::<u8>().unwrap_or(0),
 			lang: Lang::from_str(&json.lang_code)?,
+			//lang: Lang::Gb,
+			filled: false,
 
 			long_strip: false,
 			hash: String::new(),
@@ -39,7 +43,7 @@ impl Chapter {
 			pages: Vec::new(),
 		})
 	}
-	pub fn from (client: &reqwest::Client, id: u32) -> Result<Chapter, reqwest::Error>{
+	pub fn from (client: &reqwest::Client, id: u32) -> Result<Chapter, Error>{
 		let json = self::ChapterJson::get(client, id)?;
 
 		Ok(Chapter {
@@ -50,13 +54,15 @@ impl Chapter {
 			chapter: json.volume.parse::<u8>().unwrap(),
 			lang: Lang::from_str(&json.lang_code).unwrap(),
 
+			filled: true,
 			long_strip: json.long_strip != 0,
 			hash: json.hash,
 			server: Server::from_str(&json.server).expect("failed to unwrap server"),
 			pages: json.page_array,
 		})
 	}
-	pub fn download (path: PathBuf, format: String) -> Result<(), Error> {
+	pub fn download (&self, path: PathBuf, format: String) -> Result<(), Error> {
+			
 		unimplemented!()
 	}
 	pub fn len (&self) -> usize {
@@ -89,10 +95,11 @@ struct ChapterJson {
 }
 
 impl ChapterJson {
-	fn get (client: &reqwest::Client, id: u32) -> Result<ChapterJson, reqwest::Error> {
-		client
+	fn get (client: &reqwest::Client, id: u32) -> Result<ChapterJson, Error> {
+		let json: ChapterJson = client
 		.get(format!("{}{}{}{}", HTTPS_URI, BASE_URL, API_CHAPTER_URL, id).as_str())
 		.send()?
-		.json()
+		.json()?;
+		Ok(json)
 	}
 }

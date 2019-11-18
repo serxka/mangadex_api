@@ -8,7 +8,8 @@ use self::Error::*;
 #[derive(Debug)]
 pub enum Error {
 	Parse,
-	Unknown,
+	UnknownValue,
+	NotFound,
 	Io(IoError),
 	Reqwest(ReqwestError),
 }
@@ -26,8 +27,9 @@ impl fmt::Display for Error {
 impl StdError for Error {
 	fn description(&self) -> &str {
 		match *self {
-			Parse => "Error parsing value",
-			Unknown => "Unknown value",
+			Parse => "Error parsing value, (might be Lang)",
+			UnknownValue => "Unknown value, could not convert",
+			NotFound => "Could not be found",
 			Io(ref e) => e.description(),
 			Reqwest(ref e) => e.description(),
 		}
@@ -40,4 +42,10 @@ impl StdError for Error {
 			_ => None,
 		}
 	}
+}
+
+impl From<ReqwestError> for Error {
+    fn from(err: ReqwestError) -> Error {
+        Reqwest(err)
+    }
 }

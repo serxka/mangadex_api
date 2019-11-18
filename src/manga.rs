@@ -1,7 +1,7 @@
-use super::enums::{Status, Genres, Lang};
-use super::{HTTPS_URI, BASE_URL, API_MANGA_URL};
-use super::chapter::Chapter;
-use super::error::Error;
+use crate::enums::{Status, Genres, Lang};
+use crate::{HTTPS_URI, BASE_URL, API_MANGA_URL};
+use crate::chapter::Chapter;
+use crate::error::Error;
 
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -40,26 +40,27 @@ impl Manga {
 			chapters: Vec::new(),
 		}
 	}
-	pub fn from (client: &reqwest::Client, id: u32) -> Result<Manga, reqwest::Error> { // idk how to get this working with my error
+	pub fn from (client: &reqwest::Client, id: u32) -> Result<Manga, Error> {
 		let mut manga = self::Manga::new();
 		let json = self::MangaJson::get(client, id)?;
+		let json_manga = json.manga.unwrap();
 
 		manga.id = id;
-		manga.title = json.manga.title;
-		manga.description = json.manga.description;
-		manga.cover_url = json.manga.cover_url;
-		manga.artist = json.manga.artist;
-		manga.author = json.manga.author;
-		manga.status = Status::from_number(json.manga.status).unwrap();
-		manga.lang = Lang::from_str(json.manga.lang_flag.as_str()).unwrap();
-		manga.hentai = json.manga.hentai != 0;
+		manga.title = json_manga.title;
+		manga.description = json_manga.description;
+		manga.cover_url = json_manga.cover_url;
+		manga.artist = json_manga.artist;
+		manga.author = json_manga.author;
+		manga.status = Status::from_number(json_manga.status).unwrap();
+		manga.lang = Lang::from_str(json_manga.lang_flag.as_str()).unwrap();
+		manga.hentai = json_manga.hentai != 0;
 		// Expand the genres into enums
-		for genre in json.manga.genres.iter() {
+		for genre in json_manga.genres.iter() {
 			manga.genres.push(Genres::from_number(*genre).unwrap());
 		}
 		// Loop though the chapter hashmap and generate chapters
-		for (key, value) in json.chapter.into_iter() {
-			manga.chapters.push(Chapter::new(key, value).unwrap());
+		for (key, value) in json.chapter.unwrap().into_iter() { // unwrap is fine here as it will always be Some(T)
+			manga.chapters.push(Chapter::new(key, value)?);
 		}
 
 		Ok(manga)
@@ -68,7 +69,7 @@ impl Manga {
 		unimplemented!()
 	}
 	// Risky might get you blacklisted by MangaDex
-	pub fn bulk_download (path: PathBuf, format: String) -> Result<(), Error> {
+	pub fn bulk_download (_path: PathBuf, _format: String) -> Result<(), Error> {
 		unimplemented!()
 	}
 }
@@ -107,17 +108,21 @@ struct MangaObject {
 
 #[derive(Debug, Deserialize)]
 struct MangaJson {
-	manga: MangaObject,
-	chapter: HashMap<u32, ChapterObject>,
+	manga: Option<MangaObject>,
+	chapter: Option<HashMap<u32, ChapterObject>>,
 	status: String,
 }
 
 impl MangaJson {
-	fn get (client: &reqwest::Client, id: u32) -> Result<MangaJson, reqwest::Error> {
-		client
+	fn get (client: &reqwest::Client, id: u32) -> Result<MangaJson, Error> {
+		let json: MangaJson = client
 			.get(format!("{}{}{}{}", HTTPS_URI, BASE_URL, API_MANGA_URL, id).as_str())
 			.send()?
-			.json()
+			.json()?;
+		if json.status == "Manga ID does not exist.".to_string() {
+			return Err(Error::NotFound);
+		}
+		Ok(json)
 	}
 }
 

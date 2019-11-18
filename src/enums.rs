@@ -1,4 +1,4 @@
-use crate::mangadex::error::Error;
+use crate::error::Error;
 
 #[derive(Debug)]
 pub enum Genres {
@@ -86,6 +86,10 @@ pub enum Genres {
 pub enum Lang {
 	Jp,
 	Gb,
+	Kr,
+	It,
+	Fr,
+	Br,
 	Undefined,
 }
 
@@ -107,7 +111,7 @@ pub enum Server {
 }
 
 impl Genres {
-	pub fn to_str(&self) -> &str {
+	pub fn _to_str(&self) -> &str {
 		use Genres::*;
 		match *self { // test to see if a hash table is faster
 			FourKoma => "4-Koma",
@@ -215,6 +219,10 @@ impl Lang {
 		match *self {
 			Lang::Jp => "JP",
 			Lang::Gb => "EN",
+			Lang::Kr => "KR",
+			Lang::It => "IT",
+			Lang::Fr => "FR",
+			Lang::Br => "BR",
 			Lang::Undefined => "Undefined"
 		}
 	}
@@ -222,6 +230,10 @@ impl Lang {
 		match *self {
 			Lang::Jp => "Japanese",
 			Lang::Gb => "English",
+			Lang::Kr => "Korean",
+			Lang::It => "Italian",
+			Lang::Fr => "French",
+			Lang::Br => "Portuguese",
 			Lang::Undefined => "Undefined"
 		}
 	}
@@ -229,6 +241,10 @@ impl Lang {
 		match lang {
 			"jp" => Ok(Lang::Jp),
 			"gb" => Ok(Lang::Gb),
+			"kr" => Ok(Lang::Kr),
+			"it" => Ok(Lang::It),
+			"fr" => Ok(Lang::Fr),
+			"br" => Ok(Lang::Br),
 			_ => Err(Error::Parse)
 		}
 	}
@@ -258,10 +274,10 @@ impl Status {
 
 // Done
 impl Server {
-	pub fn to_str (&self) -> Result<String, Error> {
+	pub fn _to_str (&self) -> Result<String, Error> {
 		match *self {
 			Server::Server(s) => Ok(format!("s{}.", s)), // There has to be a better way
-			Server::None => Err(Error::Unknown)
+			Server::None => Err(Error::UnknownValue)
 		}
 	}
 	// This is finicky, but I think its the fastest way?

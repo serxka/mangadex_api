@@ -1,7 +1,7 @@
 [package]
 name = "mangadex_api"
 version = "0.1.0"
-authors = ["milo wheeler <milow@mail.com>"]
+authors = ["Milo Wheeler <milow@mail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 

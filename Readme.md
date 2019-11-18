@@ -1,8 +1,9 @@
 it works, doesnt have much in it tho
 
 ## Goals
+* ~~get manga data from site~~
 * add file writing
-* replace `reqwest::Error` with `mangadex::Error`
+* ~~replace `reqwest::Error` with `mangadex::Error`~~
 * add 404 errors and related
 * add user account and searching
 * add async
