@@ -2,6 +2,7 @@ use crate::enums::{Status, Genres, Lang};
 use crate::{HTTPS_URI, BASE_URL, API_MANGA_URL};
 use crate::chapter::Chapter;
 use crate::error::Error;
+use crate::session::Session;
 
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -40,9 +41,9 @@ impl Manga {
 			chapters: Vec::new(),
 		}
 	}
-	pub fn from (client: &reqwest::Client, id: u32) -> Result<Manga, Error> {
+	pub fn from (session: &Session, id: u32) -> Result<Manga, Error> {
 		let mut manga = self::Manga::new();
-		let json = self::MangaJson::get(client, id)?;
+		let json = self::MangaJson::get(session, id)?;
 		let json_manga = json.manga.unwrap();
 
 		manga.id = id;
@@ -114,8 +115,8 @@ struct MangaJson {
 }
 
 impl MangaJson {
-	fn get (client: &reqwest::Client, id: u32) -> Result<MangaJson, Error> {
-		let json: MangaJson = client
+	fn get (session: &Session, id: u32) -> Result<MangaJson, Error> {
+		let json: MangaJson = session.client
 			.get(format!("{}{}{}{}", HTTPS_URI, BASE_URL, API_MANGA_URL, id).as_str())
 			.send()?
 			.json()?;
@@ -128,6 +129,6 @@ impl MangaJson {
 
 // Debug stuff
 #[cfg(debug_assertions)]
-pub fn print_manga_json_response (client: &reqwest::Client, id: u32) {
-	println!("{:?}",MangaJson::get(client, id));
+pub fn print_manga_json_response (session: &Session, id: u32) {
+	println!("{:?}",MangaJson::get(session, id));
 }

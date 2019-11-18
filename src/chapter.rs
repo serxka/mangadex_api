@@ -2,6 +2,7 @@ use crate::manga::ChapterObject;
 use crate::enums::{Lang, Server};
 use crate::{HTTPS_URI, BASE_URL, API_CHAPTER_URL};
 use crate::error::Error;
+use crate::session::Session;
 
 use std::path::PathBuf;
 use std::fmt;
@@ -43,8 +44,8 @@ impl Chapter {
 			pages: Vec::new(),
 		})
 	}
-	pub fn from (client: &reqwest::Client, id: u32) -> Result<Chapter, Error>{
-		let json = self::ChapterJson::get(client, id)?;
+	pub fn from (session: &Session, id: u32) -> Result<Chapter, Error>{
+		let json = self::ChapterJson::get(session, id)?;
 
 		Ok(Chapter {
 			id,
@@ -95,8 +96,8 @@ struct ChapterJson {
 }
 
 impl ChapterJson {
-	fn get (client: &reqwest::Client, id: u32) -> Result<ChapterJson, Error> {
-		let json: ChapterJson = client
+	fn get (session: &Session, id: u32) -> Result<ChapterJson, Error> {
+		let json: ChapterJson = session.client
 		.get(format!("{}{}{}{}", HTTPS_URI, BASE_URL, API_CHAPTER_URL, id).as_str())
 		.send()?
 		.json()?;

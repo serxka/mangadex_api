@@ -2,7 +2,7 @@
 pub mod manga;
 pub mod chapter;
 pub mod search;
-pub mod user;
+pub mod session;
 pub use self::error::Error;
 
 // Modules

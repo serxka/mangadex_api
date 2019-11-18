@@ -1,4 +1,4 @@
-it works, doesnt have much in it tho
+Overall goal is to have a full mangadex api written in rust for whatever purpose lmao
 
 ## Goals
 * ~~get manga data from site~~

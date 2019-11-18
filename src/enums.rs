@@ -209,7 +209,7 @@ impl Genres {
 			82 => Ok(Zombies),
 			83 => Ok(Incest),
 			//_ => Err(Error::Parse)
-			_ => panic!("missed on dipshit")
+			_ => panic!("missed one dipshit")
 		}
 	}
 }
