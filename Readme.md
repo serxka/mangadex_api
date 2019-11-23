@@ -2,7 +2,7 @@ Overall goal is to have a full mangadex api written in rust for whatever purpose
 
 ## Goals
 * ~~get manga data from site~~
-* add file writing
+* ~~add file writing~~
 * ~~replace `reqwest::Error` with `mangadex::Error`~~
 * ~~add 404 errors and related~~
 * add user account and searching
