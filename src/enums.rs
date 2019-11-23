@@ -274,7 +274,7 @@ impl Status {
 
 // Done
 impl Server {
-	pub fn _to_str (&self) -> Result<String, Error> {
+	pub fn to_str (&self) -> Result<String, Error> {
 		match *self {
 			Server::Server(s) => Ok(format!("s{}.", s)), // There has to be a better way
 			Server::None => Err(Error::UnknownValue)

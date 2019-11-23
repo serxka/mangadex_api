@@ -15,7 +15,7 @@ Overall goal is to have a full mangadex api written in rust for whatever purpose
 ```
 https://mangadex.org/api/manga/<id>
 	https://mangadex.org/api/chapter/<id>
-		https://s4.mangadex.org/data/<chapterhash>/<page>
+		https://<server>.mangadex.org/data/<chapterhash>/<page>
 https://mangadex.org/images/flags/<countrycode>.png
 ```
 

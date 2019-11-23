@@ -10,5 +10,9 @@ reqwest = "0.9"
 serde = "1.0"
 
 [[example]]
-name ="query"
+name ="query_and_download"
+crate-type = ["bin"]
+
+[[example]]
+name ="session"
 crate-type = ["bin"]

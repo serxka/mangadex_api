@@ -4,7 +4,7 @@ use crate::{HTTPS_URI, BASE_URL, API_CHAPTER_URL};
 use crate::error::Error;
 use crate::session::Session;
 
-use std::path::PathBuf;
+use std::fs::{File, DirBuilder};
 use std::fmt;
 
 use serde::Deserialize;
@@ -44,7 +44,7 @@ impl Chapter {
 			pages: Vec::new(),
 		})
 	}
-	pub fn from (session: &Session, id: u32) -> Result<Chapter, Error>{
+	pub fn fill (session: &Session, id: u32) -> Result<Chapter, Error>{
 		let json = self::ChapterJson::get(session, id)?;
 
 		Ok(Chapter {
@@ -52,7 +52,7 @@ impl Chapter {
 			timestamp: json.timestamp,
 			title: json.title,
 			volume: json.volume.parse::<u8>().unwrap_or(0),
-			chapter: json.volume.parse::<u8>().unwrap(),
+			chapter: json.chapter.parse::<u8>().unwrap(),
 			lang: Lang::from_str(&json.lang_code).unwrap(),
 
 			filled: true,
@@ -62,9 +62,17 @@ impl Chapter {
 			pages: json.page_array,
 		})
 	}
-	pub fn download (&self, path: PathBuf, format: String) -> Result<(), Error> {
-			
-		unimplemented!()
+	pub fn download (&self, format: &str) -> Result<(), Error> {
+		if !std::path::Path::new(format).exists() {
+			DirBuilder::new().recursive(true).create(format)?;
+		}
+		for page in self.pages.iter() {
+			let mut file = File::create(format!("{}/{}", format, page))?;
+			let mut image = reqwest::get(format!("{}{}{}data/{}/{}",
+					HTTPS_URI, self.server.to_str()?, BASE_URL, self.hash, page).as_str())?;
+			std::io::copy(&mut image, &mut file)?;
+		}
+		Ok(())
 	}
 	pub fn len (&self) -> usize {
 		self.pages.len()

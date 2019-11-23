@@ -5,7 +5,6 @@ use crate::error::Error;
 use crate::session::Session;
 
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::fmt;
 
 use serde::Deserialize;
@@ -66,11 +65,11 @@ impl Manga {
 
 		Ok(manga)
 	}
-	pub fn download_cover () -> Vec<u8> {
+	pub fn download_cover () -> Result<Vec<u8>, Error> {
 		unimplemented!()
 	}
 	// Risky might get you blacklisted by MangaDex
-	pub fn bulk_download (_path: PathBuf, _format: String) -> Result<(), Error> {
+	pub fn bulk_download (_format: &str) -> Result<(), Error> {
 		unimplemented!()
 	}
 }
@@ -117,9 +116,9 @@ struct MangaJson {
 impl MangaJson {
 	fn get (session: &Session, id: u32) -> Result<MangaJson, Error> {
 		let json: MangaJson = session.client
-			.get(format!("{}{}{}{}", HTTPS_URI, BASE_URL, API_MANGA_URL, id).as_str())
-			.send()?
-			.json()?;
+		.get(format!("{}{}{}{}", HTTPS_URI, BASE_URL, API_MANGA_URL, id).as_str())
+		.send()?
+		.json()?;
 		if json.status == "Manga ID does not exist.".to_string() {
 			return Err(Error::NotFound);
 		}

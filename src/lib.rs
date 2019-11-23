@@ -1,11 +1,17 @@
+#![allow(dead_code)]
+#![allow(unused_mut)]
+#![allow(unused_variables)]
 // Public export
-pub mod manga;
-pub mod chapter;
-pub mod search;
-pub mod session;
+pub use manga::Manga;
+pub use chapter::Chapter;
+pub use session::Session;
 pub use self::error::Error;
 
 // Modules
+mod manga;
+mod chapter;
+mod search;
+mod session;
 mod enums;
 mod error;
 

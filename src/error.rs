@@ -44,6 +44,12 @@ impl StdError for Error {
 	}
 }
 
+impl From<IoError> for Error {
+	fn from (err: IoError) -> Error {
+		Io(err)
+	}
+}
+
 impl From<ReqwestError> for Error {
     fn from(err: ReqwestError) -> Error {
         Reqwest(err)
